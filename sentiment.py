@@ -2,11 +2,11 @@ import re
 import tweepy
 from tweepy import OAuthHandler
 from textblob import TextBlob
-from colorama import Fore,Back,Style,init
 import datetime
-ch=0
-hash=0
-class TwitterClient(object):
+import matplotlib.pyplot as plt
+from decimal import *
+
+class SentimentAnalysis(object):
     p_tweets=0
     n_tweets=0
     neu_tweets=0
@@ -14,11 +14,10 @@ class TwitterClient(object):
 
     #initialize the object with user credentials
     def __init__(self):
-        consumer_key = 'your_consumer_key'
-        consumer_secret = 'your_consumer_secret'
-        access_key = 'your_access_key'
-        access_secret = 'your_access_secret'
-        init(convert=True)
+        consumer_key = 'Ir9ESahvCSNaVWVdCrUCwmsf4'
+        consumer_secret = 'bL7riSFQ1pXRAAqbHUgAyS4eI03Bg51xFnFUV19UJgLbjKCteS'
+        access_key = '1169854323943038976-8xcs85UNeYyOK06stLNfyD5D8KjK0z'
+        access_secret = '8P9yMTkrzgsbAUvn5YRMgfhybAut5Rl0nYhZp9VuidTur'
          
         try :
             self.auth = OAuthHandler(consumer_key,consumer_secret)
@@ -33,28 +32,16 @@ class TwitterClient(object):
 
 
     #fetch the tweets and store them
-    def fetch_tweets(self,query,c):
-	
-        self.total_tweets = int(c)
-        tweets = []
-        date = datetime.datetime.now()
-        date=str(date.year)+"-"+str(date.month)+"-"+str(date.day)
+    def fetch_tweets(self,query):
+        startdate = datetime.date(2020,3,24)
+        enddate   = datetime.date(2020,4,24)
+
         try:
 
-          fetched_tweets = tweepy.Cursor(self.api.search,q=query + " -filter:retweets",lang="en",since=date,tweet_mode='extended').items(int(c))
+          fetched_tweets = tweepy.Cursor(self.api.search,q=query + " -filter:retweets",lang="en",since=startdate,tweet_mode='extended',until=enddate).items()
           for tweet in fetched_tweets :
-            parsed_tweets = {} 
-            parsed_tweets['text']=tweet.full_text
-            parsed_tweets['sent']=self.AnalyseTweet(tweet.full_text)
-            print(Back.WHITE)
-            print(Fore.BLACK  + parsed_tweets['text'])
-            if parsed_tweets['sent'] == 'Positive':
-                print(Fore.GREEN + " " + parsed_tweets['sent'] + " ")
-            elif parsed_tweets['sent'] == 'Neutral' :
-                print(Fore.BLACK + " " + parsed_tweets['sent'] + " ")
-            else : 
-                print(Fore.RED + " " + parsed_tweets['sent'] + " " )
-            print(Style.RESET_ALL + "------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+              self.total_tweets = self.total_tweets + 1
+              self.AnalyseTweet(tweet.full_text)
 
         except tweepy.TweepError as e:
           print(str(e))
@@ -63,24 +50,29 @@ class TwitterClient(object):
         res = TextBlob(self.clean_tweet(tweet))
         if res.sentiment.polarity > 0:
             self.p_tweets = self.p_tweets + 1
-            return 'Positive'
+            
         if res.sentiment.polarity == 0:
             self.neu_tweets = self.neu_tweets + 1
-            return 'Neutral'
+            
         if res.sentiment.polarity < 0:
             self.n_tweets = self.n_tweets + 1
-            return 'Negative'
+            
 
+getcontext().prec=3
+sa = SentimentAnalysis()
 
-tc = TwitterClient()
-print("Enter hashtag : #",end="")
-hash = input()
-print("Enter number of tweets : ",end="")
-count=input()
-tc.fetch_tweets("#"+hash,count)
-print(Style.RESET_ALL)
-print("Positive Tweets : " + str((tc.p_tweets/tc.total_tweets)*100) + "%")
-print("Neutral Tweets : " + str((tc.neu_tweets/tc.total_tweets)*100) + "%")
-print("Negative Tweets : " + str((tc.n_tweets/tc.total_tweets)*100) + "%")
+sa.fetch_tweets("#Google")
 
-	
+tweets_count = [ sa.p_tweets,
+                 sa.n_tweets,
+                 sa.neu_tweets ] 
+
+labels = [ "Positive " + str(Decimal((sa.p_tweets / sa.total_tweets)) * 100) + " %",
+           "Negative " + str(Decimal((sa.n_tweets / sa.total_tweets)) * 100) + " %" ,
+           "Neutral " + str(Decimal((sa.neu_tweets / sa.total_tweets)) * 100) + " %" ]
+
+plt.pie( tweets_count,
+         labels=labels,
+         colors=['g','r','y']
+       )
+plt.show()
