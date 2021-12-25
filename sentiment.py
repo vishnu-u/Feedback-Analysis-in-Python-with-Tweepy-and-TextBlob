@@ -14,10 +14,10 @@ class SentimentAnalysis(object):
 
     #initialize the object with user credentials
     def __init__(self):
-        consumer_key = 'Ir9ESahvCSNaVWVdCrUCwmsf4'
-        consumer_secret = 'bL7riSFQ1pXRAAqbHUgAyS4eI03Bg51xFnFUV19UJgLbjKCteS'
-        access_key = '1169854323943038976-8xcs85UNeYyOK06stLNfyD5D8KjK0z'
-        access_secret = '8P9yMTkrzgsbAUvn5YRMgfhybAut5Rl0nYhZp9VuidTur'
+        consumer_key = 'consumer_key_here'
+        consumer_secret = 'consumer_secret_here'
+        access_key = 'access_key_here'
+        access_secret = 'consumer_secret_here'
          
         try :
             self.auth = OAuthHandler(consumer_key,consumer_secret)
